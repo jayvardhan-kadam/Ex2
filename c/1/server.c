@@ -1,3 +1,4 @@
+// TODO: 決め打ちをなくす
 #include<sys/socket.h>
 #include<netinet/in.h>
 #include<netdb.h>
@@ -8,17 +9,15 @@
 #include<errno.h>
 
 #define NUMSTR  3
+#define BUF_SIZE 1024
 
-char *strs[NUMSTR] = {
-	"1\n",
-	"2\n",
-	"3\n"
-};
+const char *NOT_FOUND_MSG = "404 Not Found\n";
 
 int main(int argc, char* argv[])
 {
-	FILE *fp;
-	int c, i, s, ns, port;
+	FILE *fp, *fp2;
+	int s, ns, port;
+  char request[BUF_SIZE], path[BUF_SIZE], buf[BUF_SIZE], c;
 	struct sockaddr_in sin, fsin;
 	
 	socklen_t fromlen = sizeof(struct sockaddr_in);
@@ -48,26 +47,31 @@ int main(int argc, char* argv[])
 		exit(1);	
 	}
 	
-	if ((ns = accept(s, (struct sockaddr *)&fsin, &fromlen)) == -1) {
-		perror("server accept()");	
-		exit(1);
-	}
-	
-	fp = fdopen(ns, "r");
-	
-	for (i = 0; i < NUMSTR; i++){
-		send(ns, strs[i], strlen(strs[i]), 0);
-	}
-	
-	for (i = 0; i < NUMSTR; i++) {
-		while ((c = fgetc(fp)) != EOF) {
-			putchar(c);				
-			if(c == '\n')
-				break;
-		}
-	}
-	
-	close(s);
+  while(1) {
+    if ((ns = accept(s, (struct sockaddr *)&fsin, &fromlen)) == -1) {
+      perror("server accept()");	
+      exit(1);
+    }
+
+    fp = fdopen(ns, "r");
+
+    fgets(request, sizeof(request), fp);
+
+    sscanf(request, "GET /%s", path);
+
+    if((fp2 = fopen(path, "r")) == NULL) {
+      send(ns, NOT_FOUND_MSG, strlen(NOT_FOUND_MSG), 0);
+    } else {
+      while(fgets(buf, sizeof(buf), fp2) != NULL) {
+        send(ns, buf, strlen(buf), 0);
+      }
+    }
+
+    fclose(fp2);
+    close(ns);
+  }
+
+  close(s);
+
 	return 0;
 }
-
