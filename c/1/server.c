@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 {
 	FILE *fp, *fp2;
 	int s, ns, port;
-  char request[BUF_SIZE], path[BUF_SIZE], buf[BUF_SIZE], c;
+  char request[BUF_SIZE], path[BUF_SIZE], buf[BUF_SIZE];
 	struct sockaddr_in sin, fsin;
 	
 	socklen_t fromlen = sizeof(struct sockaddr_in);
@@ -65,6 +65,7 @@ int main(int argc, char* argv[])
       while(fgets(buf, sizeof(buf), fp2) != NULL) {
         send(ns, buf, strlen(buf), 0);
       }
+      fprintf(fp, "\n");
     }
 
     fclose(fp2);
