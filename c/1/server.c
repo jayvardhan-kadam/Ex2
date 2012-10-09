@@ -15,41 +15,41 @@ const char *NOT_FOUND_MSG = "404 Not Found\n";
 
 int main(int argc, char* argv[])
 {
-	FILE *fp, *fp2;
-	int s, ns, port;
+  FILE *fp, *fp2;
+  int s, ns, port;
   char request[BUF_SIZE], path[BUF_SIZE], buf[BUF_SIZE];
-	struct sockaddr_in sin, fsin;
-	
-	socklen_t fromlen = sizeof(struct sockaddr_in);
-	
-	if((argc <= 1) || ((port = atoi(argv[1])) == 0)) {
-	  perror("no port number");
-	  exit(1);		
-	}
+  struct sockaddr_in sin, fsin;
+  
+  socklen_t fromlen = sizeof(struct sockaddr_in);
+  
+  if((argc <= 1) || ((port = atoi(argv[1])) == 0)) {
+    perror("no port number");
+    exit(1);    
+  }
 
-	if((s = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-		perror("client socket()");
-		exit(1);		
-	}
-	
-	bzero(&sin, sizeof(sin));
-	sin.sin_family = AF_INET;
-	sin.sin_port = htons(port);
-	sin.sin_addr.s_addr = INADDR_ANY;
-	
-	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) == -1) {
-		perror("server bind()");
-		exit(1);	
-	}
-	
-	if (listen(s, 128) == -1) {
-		perror("server listen()");
-		exit(1);	
-	}
-	
+  if((s = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+    perror("client socket()");
+    exit(1);    
+  }
+  
+  bzero(&sin, sizeof(sin));
+  sin.sin_family = AF_INET;
+  sin.sin_port = htons(port);
+  sin.sin_addr.s_addr = INADDR_ANY;
+  
+  if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) == -1) {
+    perror("server bind()");
+    exit(1);  
+  }
+  
+  if (listen(s, 128) == -1) {
+    perror("server listen()");
+    exit(1);  
+  }
+  
   while(1) {
     if ((ns = accept(s, (struct sockaddr *)&fsin, &fromlen)) == -1) {
-      perror("server accept()");	
+      perror("server accept()");  
       exit(1);
     }
 
@@ -74,5 +74,5 @@ int main(int argc, char* argv[])
 
   close(s);
 
-	return 0;
+  return 0;
 }
