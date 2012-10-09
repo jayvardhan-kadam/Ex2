@@ -1,4 +1,3 @@
-// TODO: 決め打ちをなくす
 #include<sys/socket.h>
 #include<netinet/in.h>
 #include<netdb.h>
@@ -8,14 +7,13 @@
 #include<string.h>
 #include<errno.h>
 
-#define NUMSTR  3
 #define BUF_SIZE 1024
 
 const char *NOT_FOUND_MSG = "404 Not Found\n";
 
 int main(int argc, char* argv[])
 {
-  FILE *fp, *fp2;
+  FILE *fp, *requested_file;
   int s, ns, port;
   char request[BUF_SIZE], path[BUF_SIZE], buf[BUF_SIZE];
   struct sockaddr_in sin, fsin;
@@ -59,16 +57,17 @@ int main(int argc, char* argv[])
 
     sscanf(request, "GET /%s", path);
 
-    if((fp2 = fopen(path, "r")) == NULL) {
+    if((requested_file = fopen(path, "r")) == NULL) {
+      // File Not Found
       send(ns, NOT_FOUND_MSG, strlen(NOT_FOUND_MSG), 0);
     } else {
-      while(fgets(buf, sizeof(buf), fp2) != NULL) {
+      while(fgets(buf, sizeof(buf), requested_file) != NULL) {
         send(ns, buf, strlen(buf), 0);
       }
       fprintf(fp, "\n");
     }
 
-    fclose(fp2);
+    fclose(requested_file);
     close(ns);
   }
 
