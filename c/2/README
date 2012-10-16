@@ -1,0 +1,6 @@
+課題1
+
+入ってるもの
+Makefile
+server.c: サーバー
+client.c: クライアント
