@@ -12,30 +12,26 @@
 int main(int argc, char* argv[])
 {
   FILE *fp;
-  char request[BUF_SIZE], hostname[BUF_SIZE], host[BUF_SIZE], path[BUF_SIZE], buf[BUF_SIZE], *filename, *p, *port_p , *p2;
-  int c, s, port = 0;
+  char request[BUF_SIZE], hostname[BUF_SIZE], path[BUF_SIZE], buf[BUF_SIZE], *port_p, *path_p;
+  int s, port;
   struct hostent *hp;
   struct sockaddr_in sin;
 
   while(1) {
-    fgets(buf, sizeof(buf), stdin);
+    while(fgets(buf, sizeof(buf), stdin)){
+      if (buf[0] != '\n') break;
+    };
     sscanf(buf, "http://%s", hostname);
 
-    if((p = strchr(hostname, ':')) == NULL) {
+    path_p = strchr(hostname, '/');
+    *path_p++ = '\0';
+    strcpy(path, path_p); 
+
+    if((port_p = strchr(hostname, ':')) == NULL) {
       port = 80;
-
-      p = strchr(hostname, '/');
-      *p++ = '\0';
-      strcpy(path, p);
     } else {
-      *p++ = '\0';
-
-      p2 = p;
-
-      p = strchr(p, '/');
-      *p++ = '\0';
-      port = atoi(p2);
-      strcpy(path, p);
+      *port_p++ = '\0';
+      port = atoi(port_p);
     }
 
     if ((hp = gethostbyname(hostname)) == NULL) {

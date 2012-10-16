@@ -95,7 +95,7 @@ struct HTTPRequest* read_request(FILE *fp) {
 
   // Read Request-Line
   fgets(buf, sizeof(buf), fp);
-  sscanf(buf, "%s %s HTTP/1.1", method, path);
+  sscanf(buf, "%s /%s HTTP/1.1", method, path);
 
   request->method = malloc(strlen(method) + 1);
   strcpy(request->method, method);
