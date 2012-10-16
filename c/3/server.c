@@ -21,7 +21,7 @@ void free_request(struct HTTPRequest *request);
 int main(int argc, char* argv[])
 {
   FILE *fp, *requested_file;
-  int s, ns, port;
+  int s, ns, port, pid;
   char buf[BUF_SIZE];
   struct sockaddr_in sin, fsin;
   struct HTTPRequest *request;
@@ -59,28 +59,35 @@ int main(int argc, char* argv[])
       exit(1);
     }
 
-    fp = fdopen(ns, "r+");
+    pid = fork();
 
-    request = read_request(fp);
+    if (pid == 0) {
+      fp = fdopen(ns, "r+");
 
-    if((requested_file = fopen(request->path, "r")) == NULL) {
-      // Not Found
-      fprintf(fp, "HTTP/1.1 404 Not Found\r\n");
-      fprintf(fp, "Content-Type: text/html; charset=us-ascii\r\n\r\n");
-      fflush(fp);
-    } else {
-      fprintf(fp, "HTTP/1.1 200 OK\r\n");
-      fprintf(fp, "Content-Type: text/html; charset=us-ascii\r\n\r\n");
-      fflush(fp);
+      request = read_request(fp);
 
-      while(fgets(buf, sizeof(buf), requested_file) != NULL) {
-        write(ns, buf, strlen(buf));
+      if ((requested_file = fopen(request->path, "r")) == NULL) {
+        // Not Found
+        fprintf(fp, "HTTP/1.1 404 Not Found\r\n");
+        fprintf(fp, "Content-Type: text/html; charset=us-ascii\r\n\r\n");
+        fflush(fp);
+      } else {
+        fprintf(fp, "HTTP/1.1 200 OK\r\n");
+        fprintf(fp, "Content-Type: text/html; charset=us-ascii\r\n\r\n");
+        fflush(fp);
+
+        while (fgets(buf, sizeof(buf), requested_file) != NULL) {
+          write(ns, buf, strlen(buf));
+        }
       }
-    }
 
-    fclose(requested_file);
-    close(ns);
-    free_request(request);
+      fclose(requested_file);
+      close(ns);
+      free_request(request);
+      exit(0);
+    } else {
+      close(ns);
+    }
   }
 
   close(s);
