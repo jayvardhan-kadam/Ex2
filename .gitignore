@@ -15,5 +15,9 @@
 *.exe
 *.out
 *.app
+client
+server
 
+# General
 .DS_Store
+
