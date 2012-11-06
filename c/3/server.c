@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
         // Not Found
         fprintf(fp, "HTTP/1.1 404 Not Found\r\n");
         fprintf(fp, "Content-Type: text/html; charset=us-ascii\r\n\r\n");
+        fprintf(fp, "<html><head>NOT FOUND</head><body></body></html>\r\n");
         fflush(fp);
       } else {
         fprintf(fp, "HTTP/1.1 200 OK\r\n");
