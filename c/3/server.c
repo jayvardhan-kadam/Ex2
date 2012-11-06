@@ -18,6 +18,10 @@ struct HTTPRequest {
 struct HTTPRequest *read_request(FILE *fp);
 void free_request(struct HTTPRequest *request);
 
+char OK_MESSAGE_HEADER[] = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=us-ascii\r\n\r\n";
+char NOT_FOUND_MESSAGE_HEADER[] = "HTTP/1.1 404 NOT FOUND\r\nContent-Type: text/html; charset=us-ascii\r\n\r\n";
+char NOT_FOUND_MESSAGE_BODY[] = "<html><head>NOT FOUND</head><body></body></html>\r\n";
+
 int main(int argc, char* argv[])
 {
   FILE *fp, *requested_file;
@@ -68,14 +72,10 @@ int main(int argc, char* argv[])
 
       if ((requested_file = fopen(request->path, "r")) == NULL) {
         // Not Found
-        fprintf(fp, "HTTP/1.1 404 Not Found\r\n");
-        fprintf(fp, "Content-Type: text/html; charset=us-ascii\r\n\r\n");
-        fprintf(fp, "<html><head>NOT FOUND</head><body></body></html>\r\n");
-        fflush(fp);
+        write(ns, NOT_FOUND_MESSAGE_HEADER, strlen(NOT_FOUND_MESSAGE_HEADER));
+        write(ns, NOT_FOUND_MESSAGE_BODY, strlen(NOT_FOUND_MESSAGE_BODY));
       } else {
-        fprintf(fp, "HTTP/1.1 200 OK\r\n");
-        fprintf(fp, "Content-Type: text/html; charset=us-ascii\r\n\r\n");
-        fflush(fp);
+        write(ns, OK_MESSAGE_HEADER, strlen(OK_MESSAGE_HEADER));
 
         while (fgets(buf, sizeof(buf), requested_file) != NULL) {
           write(ns, buf, strlen(buf));
