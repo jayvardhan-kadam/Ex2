@@ -1,0 +1,110 @@
+#課題4報告書
+
+氏名:     杉本風斗 
+学籍番号: 1029-23-2337
+
+## プログラム仕様
+クライアント, サーバーそれぞれについて説明する.
+
+### クライアント
+#### 外部仕様
+##### 動作の概要
+% java Client
+
+とするとクライアントプログラムが起動し, 下のようなプロンプト画面が現れる.
+> 
+
+ダウンロードしたいファイルのURLを入力する.
+> http://www.fos.kuis.kyoto-u.ac.jp/le2soft/index.html
+
+すると, htmlのソースが表示される.その下にリンクの一覧が次のように表示される.
+> http://www.fos.kuis.kyoto-u.ac.jp/le2soft/index.html
+<html>
+  <head>
+    hoge
+  </head>
+  <body>
+    <a href="foo.html"></a>
+  </body>
+</html>
+
+1. http://www.fos.kuis.kyoto-u.ac.jp/le2soft/foo.html
+
+そして, 再びプロンプトが表示される. このときリンク番号を入力すると上に表示されたリンクのページを表示する.
+> 1
+<html>
+  <head>
+    foo
+  </head>
+  <body>
+    <a href="index.html"></a>
+  </body>
+</html>
+
+1. http://www.fos.kuis.kyoto-u.ac.jp/le2soft/foo.html
+
+##### その他
+存在しないまたは不正なリンク番号を入力した場合, その旨のメッセージを表示する.
+> 7777777
+link Number: 7777777 does not exist.
+
+#### 内部仕様
+##### Clientクラス
+プロンプトからの入力を受け付けて, 入力の内容によってBrowseクラスのメソッドを呼び出す.
+リンク番号の場合, accessLinkメソッドを呼び出す.
+URLの場合, accessURLメソッドを呼び出す.
+
+メソッドが返ってきた後, 再び入力を受け付ける.
+
+##### Browseクラス
+以下のインスタンス変数を持つ.
+* List<String> linkList : リンクを保持するリスト
+* int port : アクセスするページのポート番号
+* String hostname, host, filePath, fileDir, fileName : アクセスするページに関する情報
+* String pageContent : アクセスしたページのコンテンツ
+
+以下のインスタンスメソッドを持つ.
+* [public] accessURL(String url) : 引数のURLにアクセスしてページの内容を表示する.
+* [public] accessLink(int linkNum) : 引数の番号のリンクにアクセスしてページの内容を表示する.
+* [private] updateLinkList() : リンクを保持するリストを更新する.
+* [private] parseURL(String url) : urlから必要な情報を抜き出してインスタンス変数に代入する.
+* [private] showLinkList() : リンクを保持するリストの中身を表示する.
+
+### サーバー
+#### 外部仕様
+% java Server 8888
+としてポート番号を指定して(ここでは8888番)起動する.
+
+クライアントからの新たに接続があると, 
+New Connection.
+と出力される.
+
+#### 内部仕様
+##### Serverクラス
+クライアントから接続があると, ServerThreadクラスのインスタンスを生成して処理させる.
+それを繰り返す.
+
+##### ServerThreadクラス
+以下のインスタンス変数を持つ.
+* Socket clientS            : クライアントと接続したソケット
+* BufferedReader fromClient : クライアントからの入力に使う
+* PrintStream toClient      : クライアントへの出力に使う
+* BufferedReader fromFile   : ファイルからの入力
+* String method             : リクエストのメソッド名
+* String filename           : リクエストが要求するファイル名
+
+以下のインスタンスメソッドを持つ.
+* [public] run()           : クライアントからのリクエストを処理をする. readRequest(),respondTo()を適切に呼び出す.
+* [private] readRequest()  : リクエストを読み込み, 必要な情報をインスタンス変数に格納する.
+* [private] respondTo()    : 要求されたファイルをクライアントにレスポンスとして返す.
+
+## 実行例
+外部仕様の動作概要に示した通り.
+
+## 評価
+不正なリンク番号を入力されたとき,  親切なメッセージを表示するなど, 適切にエラー処理, 例外処理をした. 
+読みやすいコードになるように細心の注意を払った. 
+
+## 感想
+肩こりがひどくなった.
+
